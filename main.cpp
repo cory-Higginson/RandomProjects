@@ -2,6 +2,14 @@
 #include <iostream>
 #include <thread>
 
+std::array<sf::Color,7> Color_List = {sf::Color::Green,
+                                   sf::Color::Blue,
+                                   sf::Color::Red,
+                                   sf::Color::Cyan,
+                                   sf::Color::Magenta,
+                                   sf::Color::Yellow,
+                                   sf::Color::White};
+
 void add(std::vector<sf::RectangleShape>& recs, sf::Color color)
 {
     int collums = 0;
@@ -10,13 +18,11 @@ void add(std::vector<sf::RectangleShape>& recs, sf::Color color)
     {
         collums =   (int)recs.back().getPosition().x / 12;
         rows    =   (int)recs.back().getPosition().y / 12;
-        color   =        recs.back().getFillColor();
-
     }
-
     while (true)
     {
-        recs.emplace_back(sf::Vector2f{10, 10});
+
+
         if ((12 * collums) + 10 >= 1080)
         {
             collums = 0;
@@ -26,6 +32,7 @@ void add(std::vector<sf::RectangleShape>& recs, sf::Color color)
         {
             return ;
         }
+        recs.emplace_back(sf::Vector2f{10, 10});
         recs.back().setFillColor(color);
         recs.back().setPosition(12.f * (float )collums,
                                 12.f * (float )rows);
@@ -40,7 +47,7 @@ void change(std::vector<sf::RectangleShape>& recs,sf::Color color)
     for (auto &item: recs)
     {
         item.setFillColor(color);
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        std::this_thread::sleep_for(std::chrono::microseconds(1000));
     }
 }
 
@@ -61,7 +68,9 @@ int main()
 
     /// A Clock starts counting as soon as it's created
     sf::Clock clock;
-    sf::Color color = {sf::Color::White};
+    sf::Color color = {sf::Color::Black};
+    int color_time = 0;
+
     add(winrecs, color);
     /// Game loop: run the program as long as the window is open
     while (window.isOpen())
@@ -81,14 +90,14 @@ int main()
                 window.close();
             if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Enter)
             {
-                color.b += 1;
+                color_time >= 7 ? color_time = 0 : color_time++;
+                color = Color_List[color_time];
                 std::thread t([&] { change(winrecs, {color}); });
                 t.detach();
-                color.g += 1;
             }
             if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::V)
             {
-                color = sf::Color::Green;
+
             }
 
             ///game.eventHandler(event);
@@ -101,9 +110,9 @@ int main()
         ///'render' elements of the game loop
         for (const auto &item: winrecs)
             window.draw(item);
+
         window.display();
     }
 
     return 0;
 }
-
